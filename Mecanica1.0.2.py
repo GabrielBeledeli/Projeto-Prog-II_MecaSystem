@@ -4,7 +4,7 @@ def cabecalho(strg):
     print(f'{strg :^60}')
     print(f'-'*60)
 
-cabecalho('SISTEMA DE GERENCIAMNETO DE OFICINA MECÂNICA')
+cabecalho('SISTEMA DE GERENCIAMENTO DE OFICINA MECÂNICA')
 
 # SuperClasse (dados genéricos de cadastro: nome, cpf, cidade, estado, rua, bairro, numero)
 class pessoal():
