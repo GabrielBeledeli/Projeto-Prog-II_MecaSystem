@@ -82,11 +82,9 @@ class servicos(veiculo):
 
 
 class pecas(servicos):
-    def __init__(self, dados_pessoa, dados_veiculo, dados_servico, dados_peca):
+    def __init__(self, dados_pessoa, dados_veiculo, dados_servico, lista_pecas):
         super().__init__(dados_pessoa, dados_veiculo, dados_servico)
-        self.peca = dados_peca['peca']
-        self.valor = dados_peca['valor']
-
+        self.lista_pecas = lista_pecas
     def print_pecas(self):
         cabecalho('DADOS PESSOAIS')
         print(f'{super().sobre_cadastro_pessoa()}')
@@ -95,7 +93,16 @@ class pecas(servicos):
         cabecalho('SERVIÇOS')
         print(f'{super().sobre_servicos()}')
         cabecalho('PECAS')
-        print(f'PECAS: {self.peca}\nVALOR: {self.valor}')
+        if self.lista_pecas:  # Verifica se a lista não está vazia
+            for peca in self.lista_pecas:
+                print(f"Nome: {peca['nome']}")
+                print(f"Marca: {peca['marca']}")
+                print(f"Valor: R$ {peca['valor']}")
+                print(f"Histórico: {peca['historico']}")
+                print(f"Descrição: {peca['descricao']}")
+                print('-' * 20)
+        else:
+            print("Nenhuma peça cadastrada.")
 
     def sobre_pecas(self):
         return (f'PECAS: {self.peca}\nVALOR: {self.valor}')
@@ -107,10 +114,16 @@ class pecas(servicos):
         # Define os dados para exportação
         dados = [
             ['Nome', 'CPF', 'Cidade', 'Estado', 'Rua', 'Bairro', 'Numero', 'Modelo Veiculo',
-                'Marca', 'Ano', 'Cor', 'Servico', 'Descricao_Servico', 'Data_Inicio', 'Prazo', 'Orcamento', 'Peca', 'Valor'],
+                'Marca', 'Ano', 'Cor', 'Servico', 'Descricao_Servico', 'Data_Inicio', 'Prazo', 'Orcamento'],
             [self.nome, self.cpf, self.cidade, self.estado, self.rua, self.bairro, self.numero, self.v_modelo,
-                self.v_marca, self.v_ano, self.v_cor, self.servico, self.descricao_servico, self.data_inicio, self.prazo, self.orcamento, self.peca, self.valor]
+                self.v_marca, self.v_ano, self.v_cor, self.servico, self.descricao_servico, self.data_inicio, self.prazo, self.orcamento]
         ]
+        dados_pecas = []
+        for peca in self.lista_pecas:
+            dados_pecas.append([peca['nome'], peca['marca'], peca['valor'], peca['historico'], peca['descricao']])
+
+        # Adicionar os dados das peças à lista principal de dados
+        dados.extend(dados_pecas)
 
         # Cria o arquivo CSV e escreve os dados
         with open(nome_arquivo, mode='w', newline='') as arquivo_csv:
@@ -151,11 +164,16 @@ def revisar_servico():
         print(f'ORÇAMENTO: {df["Orcamento"][0]}')
 
         cabecalho('PEÇAS')
-        print(f'PEÇA: {df["Peca"][0]}')
-        print(f'VALOR: {df["Valor"][0]}')
+        for index, row in df.iterrows():
+            print(f"PEÇA {index+1}:")
+            print(f"NOME: {row['Nome']}")
+            print(f"MARCA: {row['Marca']}")
+            print(f"VALOR: R$ {row['Valor']}")
+            print(f"HISTÓRICO: {row['Historico']}")
+            print(f"DESCRIÇÃO: {row['Descricao']}")
+            print('-' * 20)
     else:
         print(f"{cores[1]}Erro: Arquivo para o cliente '{cliente_nome}' não encontrado!{cores[0]}")
-
 
 # Menu inicial
 while True:
@@ -447,20 +465,25 @@ while True:
         # lista de peças
         limpar()
         cabecalho('LISTA DE PEÇAS')
+        lista_pecas = []
+        while True:
+            peca = {
+                'nome': str(input('Nome da peça: ')),
+                'marca': str(input('Marca da peça: ')),
+                'valor': float(input('Valor da peça: R$')),
+                'historico': str(input('Histórico de uso (nova/usada): ')),
+                'descricao': str(input('Descrição da peça: '))
+            }
+            lista_pecas.append(peca)
 
-        peca = str(input('PEÇA(S) A SER(EM) UTILIZADA(S): '))
-        valor = int(input('VALOR DA PEÇA: R$'))
-
-        # Dados da peça
-        dados_peca = {
-            'peca': peca,
-            'valor': valor
-        }
+            continuar = input('Deseja cadastrar outra peça? (s/n): ').lower()
+            if continuar != 's':
+                break
 
         # Chamada da SubClasse
         pausar()
         limpar()
-        tudo = pecas(dados_pessoa, dados_veiculo, dados_servico, dados_peca)
+        tudo = pecas(dados_pessoa, dados_veiculo, dados_servico, lista_pecas)
         cabecalho('REVISE OS DADOS!')
         tudo.print_pecas()
         tudo.exportar_para_csv()

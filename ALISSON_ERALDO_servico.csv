@@ -1,0 +1,4 @@
+Nome_Cliente,CPF,Cidade,Estado,Rua,Bairro,Numero,Modelo_Veiculo,Marca,Ano,Cor,Servico,Descricao_Servico,Data_Inicio,Prazo,Orcamento,nome,marca,valor,historico,descricao,Orcamento_Total
+Alisson Eraldo,12312312312,Canta Galo,PR,Rua dos Anjos,Centro,293,Fiesta,Ford,2017,Prata,Troca das Velas,Troca e revisão do sitea de ignição,12/11/2024,7,305.0,,,,,,590.63
+Alisson Eraldo,12312312312,Canta Galo,PR,Rua dos Anjos,Centro,293,Fiesta,Ford,2017,Prata,Troca das Velas,Troca e revisão do sitea de ignição,12/11/2024,7,305.0,Jogo de vela,Bosch,128.99,NOVA,New Fiesta 1.6 16v Sigma 10-13 Flex Bosch,590.63
+Alisson Eraldo,12312312312,Canta Galo,PR,Rua dos Anjos,Centro,293,Fiesta,Ford,2017,Prata,Troca das Velas,Troca e revisão do sitea de ignição,12/11/2024,7,305.0,Jogo Cabo de Vela,NGK,156.64,NOVA,Jogo Cabo de vela NGK Ford New Fiesta 1.6 2017,590.63

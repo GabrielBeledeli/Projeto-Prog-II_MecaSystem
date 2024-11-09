@@ -82,11 +82,11 @@ class servicos(veiculo):
 
 
 class pecas(servicos):
-    def __init__(self, dados_pessoa, dados_veiculo, dados_servico, dados_peca):
+    def __init__(self, dados_pessoa, dados_veiculo, dados_servico, lista_pecas):
         super().__init__(dados_pessoa, dados_veiculo, dados_servico)
-        self.peca = dados_peca['peca']
-        self.valor = dados_peca['valor']
-
+        self.lista_pecas = lista_pecas
+        
+    
     def print_pecas(self):
         cabecalho('DADOS PESSOAIS')
         print(f'{super().sobre_cadastro_pessoa()}')
@@ -95,7 +95,20 @@ class pecas(servicos):
         cabecalho('SERVIÇOS')
         print(f'{super().sobre_servicos()}')
         cabecalho('PECAS')
-        print(f'PECAS: {self.peca}\nVALOR: {self.valor}')
+        if self.lista_pecas:  # Verifica se a lista não está vazia
+            for peca in self.lista_pecas:
+                print(f"NOME: {peca['nome']}")
+                print(f"MARCA: {peca['marca']}")
+                print(f"VALOR: R$ {peca['valor']}")
+                print(f"HISTÓRICO: {peca['historico']}")
+                print(f"DESCRIÇÃO: {peca['descricao']}")
+                print('-' * 20)
+            valor_total_pecas = sum(peca['valor'] for peca in self.lista_pecas)
+            orcamento_total = self.orcamento + valor_total_pecas
+            cabecalho('ORÇAMENTO TOTAL')
+            print(f"ORÇAMENTO TOTAL: R$ {orcamento_total:.2f}")
+        else:
+            print("Nenhuma peça cadastrada.")
 
     def sobre_pecas(self):
         return (f'PECAS: {self.peca}\nVALOR: {self.valor}')
@@ -103,33 +116,61 @@ class pecas(servicos):
 
     def exportar_para_csv(self):
         # Define o nome do arquivo baseado no nome do cliente
-        nome_arquivo = f"{self.nome.replace(' ', '_')}_servico.csv"
-        # Define os dados para exportação
-        dados = [
-            ['Nome', 'CPF', 'Cidade', 'Estado', 'Rua', 'Bairro', 'Numero', 'Modelo Veiculo',
-                'Marca', 'Ano', 'Cor', 'Servico', 'Descricao_Servico', 'Data_Inicio', 'Prazo', 'Orcamento', 'Peca', 'Valor'],
-            [self.nome, self.cpf, self.cidade, self.estado, self.rua, self.bairro, self.numero, self.v_modelo,
-                self.v_marca, self.v_ano, self.v_cor, self.servico, self.descricao_servico, self.data_inicio, self.prazo, self.orcamento, self.peca, self.valor]
-        ]
+        nome_arquivo = f"{self.nome.upper().replace(' ', '_')}_servico.csv"
 
-        # Cria o arquivo CSV e escreve os dados
-        with open(nome_arquivo, mode='w', newline='') as arquivo_csv:
-            escritor = csv.writer(arquivo_csv)
-            escritor.writerows(dados)
-        print(f"Dados exportados com sucesso para {nome_arquivo}")
+       
+        # Calcula o valor total
+        valor_total_pecas = 0
+        for peca in self.lista_pecas:
+            valor_total_pecas += peca['valor']
+        orcamento_total = self.orcamento + valor_total_pecas
+        
+        # Criar um DataFrame para armazenar os dados das peças
+        df_pecas = pd.DataFrame(self.lista_pecas)  # Cada peça se torna uma linha
 
-# Função para revisar serviço
+        # Adicionar as colunas com os dados do cliente, veículo e serviço
+        df_pecas['Nome_Cliente'] = self.nome
+        df_pecas['CPF'] = self.cpf
+        df_pecas['Cidade'] = self.cidade
+        df_pecas['Estado'] = self.estado
+        df_pecas['Rua'] = self.rua
+        df_pecas['Bairro'] = self.bairro
+        df_pecas['Numero'] = self.numero
+        df_pecas['Modelo_Veiculo'] = self.v_modelo
+        df_pecas['Marca'] = self.v_marca
+        df_pecas['Ano'] = self.v_ano
+        df_pecas['Cor'] = self.v_cor
+        df_pecas['Servico'] = self.servico
+        df_pecas['Descricao_Servico'] = self.descricao_servico
+        df_pecas['Data_Inicio'] = self.data_inicio
+        df_pecas['Prazo'] = self.prazo
+        df_pecas['Orcamento'] = self.orcamento
+         # ... adicionar as outras colunas
 
+        # Criar um DataFrame inicial com os dados do cliente, veículo e serviço
+        df_inicial = pd.DataFrame({'Nome_Cliente': [self.nome], 'CPF': [self.cpf], 'Cidade': [self.cidade], 'Estado': [self.estado], 'Rua': [self.rua], 'Bairro': [self.bairro], 'Numero': [self.numero],
+                                   'Modelo_Veiculo': [self.v_modelo], 'Marca': [self.v_marca], 'Ano': [self.v_ano], 'Cor': [self.v_cor],
+                                   'Servico': [self.servico], 'Descricao_Servico': [self.descricao_servico], 'Data_Inicio': [self.data_inicio], 'Prazo': [self.prazo], 'Orcamento': [self.orcamento]})
 
+        # Concatenar os DataFrames
+        df = pd.concat([df_inicial, df_pecas], ignore_index=True)
+
+        # Envia o Orçamento Total
+        df['Orcamento_Total'] = orcamento_total
+
+        # Salvar o DataFrame para o CSV
+        df.to_csv(nome_arquivo, index=False)
+
+# se usuario selecionar a opção 2, função de revisar o pedido
 def revisar_servico():
-    cliente_nome = str(input(
-        "Digite o nome do cliente para revisar o serviço: ")).strip().replace(" ", "_")
-    arquivo_csv = f"{cliente_nome}_servico.csv"
-    if os.path.exists(arquivo_csv):
-        df = pd.read_csv(arquivo_csv)
+    #solicita o nome do cliente
+    cliente_nome = str(input("Digite o nome do cliente para revisar o serviço: ")).strip().upper().replace(" ", "_")
+    arquivo_csv = f"{cliente_nome}_servico.csv" # Cria o arquivo com o nome do cliente_servico.csv
+    if os.path.exists(arquivo_csv): # Verifica se o arquivo foi criado
+        df = pd.read_csv(arquivo_csv) # data frame pandas para leitura dos dados
 
         cabecalho('DADOS PESSOAIS')
-        print(f'NOME: {df["Nome"][0]}')
+        print(f'NOME: {df["Nome_Cliente"][0]}')
         print(f'CPF: {df["CPF"][0]}')
         print(f'CIDADE: {df["Cidade"][0]}')
         print(f'ESTADO: {df["Estado"][0]}')
@@ -138,7 +179,7 @@ def revisar_servico():
         print(f'NUMERO: {df["Numero"][0]}')
 
         cabecalho('DADOS VEICULO')
-        print(f'MODELO: {df["Modelo Veiculo"][0]}')
+        print(f'MODELO: {df["Modelo_Veiculo"][0]}')
         print(f'MARCA: {df["Marca"][0]}')
         print(f'ANO: {df["Ano"][0]}')
         print(f'COR: {df["Cor"][0]}')
@@ -151,11 +192,20 @@ def revisar_servico():
         print(f'ORÇAMENTO: {df["Orcamento"][0]}')
 
         cabecalho('PEÇAS')
-        print(f'PEÇA: {df["Peca"][0]}')
-        print(f'VALOR: {df["Valor"][0]}')
+        for index, row in df.iterrows(): # percore as linhas e colunas
+            if index == 0:  # Pula a primeira linha (já exibida), retorna para as demais linhas que preenchem as informações das peças
+                continue
+            print(f"PEÇA {index}:")
+            print(f"NOME: {row['nome']}")
+            print(f"MARCA: {row['marca']}")
+            print(f"VALOR: R$ {row['valor']}")
+            print(f"HISTÓRICO: {row['historico']}")
+            print(f"DESCRIÇÃO: {row['descricao']}")
+            print('-' * 20)
+        cabecalho('ORÇAMENTO TOTAL')
+        print(f'ORÇAMENTO TOTAL: {df['Orcamento_Total'][0]}')
     else:
         print(f"{cores[1]}Erro: Arquivo para o cliente '{cliente_nome}' não encontrado!{cores[0]}")
-
 
 # Menu inicial
 while True:
@@ -192,8 +242,7 @@ while True:
         while True:
             try:
                 # Mantém como string e remove espaços em volta
-                cpf = str(input(
-                    'CPF (somente números, sem espaços ou pontos): ')).strip()
+                cpf = str(input('CPF (somente números, sem espaços ou pontos): ')).strip()
                 if not cpf:
                     raise ValueError('O CPF não pode ser vazio!')
                 if not cpf.isdigit():  # Verifica se todos os caracteres são dígitos
@@ -210,11 +259,9 @@ while True:
             try:
                 cidade = str(input('CIDADE: ')).strip()
                 if not cidade:
-                    raise ValueError(
-                        'o nome da Cidade não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o nome da Cidade não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in cidade):
-                    raise ValueError(
-                        'O nome da Cidade deve conter apenas letras e espaços!')
+                    raise ValueError('O nome da Cidade deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -225,11 +272,9 @@ while True:
             try:
                 estado = str(input('ESTADO: ')).strip()
                 if not estado:
-                    raise ValueError(
-                        'o nome do Estado não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o nome do Estado não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in estado):
-                    raise ValueError(
-                        'O nome do Estado deve conter apenas letras e espaços!')
+                    raise ValueError('O nome do Estado deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -240,11 +285,9 @@ while True:
             try:
                 rua = str(input('RUA: ')).strip()
                 if not rua:
-                    raise ValueError(
-                        'o nome da Rua não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o nome da Rua não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in rua):
-                    raise ValueError(
-                        'O nome da Rua deve conter apenas letras e espaços!')
+                    raise ValueError('O nome da Rua deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -255,11 +298,9 @@ while True:
             try:
                 bairro = str(input('BAIRRO: ')).strip()
                 if not bairro:
-                    raise ValueError(
-                        'o nome do Bairro não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o nome do Bairro não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in bairro):
-                    raise ValueError(
-                        'O nome do Bairro deve conter apenas letras e espaços!')
+                    raise ValueError('O nome do Bairro deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -272,8 +313,7 @@ while True:
                 if not numero:
                     raise ValueError('O Número não pode ser vazio!')
                 if not numero.isdigit():
-                    raise ValueError(
-                        'O Número deve conter apenas digitos numéricos!')
+                    raise ValueError('O Número deve conter apenas digitos numéricos!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -298,8 +338,7 @@ while True:
             try:
                 v_modelo = str(input('MODELO: ')).strip()
                 if not v_modelo:
-                    raise ValueError(
-                        'o Modelo do veiculo não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o Modelo do veiculo não pode ser vazio ou conter apenas espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -310,11 +349,9 @@ while True:
             try:
                 v_marca = str(input('MARCA: ')).strip()
                 if not v_marca:
-                    raise ValueError(
-                        'A Marca do veiculo não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('A Marca do veiculo não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in v_marca):
-                    raise ValueError(
-                        'A Marca do veiculo deve conter apenas letras e espaços!')
+                    raise ValueError('A Marca do veiculo deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -340,11 +377,9 @@ while True:
             try:
                 v_cor = str(input('COR: ')).strip()
                 if not v_cor:
-                    raise ValueError(
-                        'A Marca do veiculo não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('A Marca do veiculo não pode ser vazio ou conter apenas espaços!')
                 if not all(x.isalpha() or x.isspace() for x in v_cor):
-                    raise ValueError(
-                        'A Marca do veiculo deve conter apenas letras e espaços!')
+                    raise ValueError('A Marca do veiculo deve conter apenas letras e espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -367,8 +402,7 @@ while True:
             try:
                 servico = str(input(f'SERVIÇO: ')).strip()
                 if not servico:
-                    raise ValueError(
-                        'o Serviço não pode ser vazio ou conter apenas espaços!')
+                    raise ValueError('o Serviço não pode ser vazio ou conter apenas espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -379,8 +413,7 @@ while True:
             try:
                 descricao_servico = str(input('DESCREVA O SERVIÇO: ')).strip()
                 if not descricao_servico:
-                    raise ValueError(
-                        'A descrição do serviço não pode ser vazia ou conter apenas espaços!')
+                    raise ValueError('A descrição do serviço não pode ser vazia ou conter apenas espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -392,8 +425,7 @@ while True:
                 data_inicio = str(
                     input('DATA DE INICIO: (**/**/****) ')).strip()
                 if not data_inicio:
-                    raise ValueError(
-                        'A data de inicio não pode ser vazia ou conter apenas espaços!')
+                    raise ValueError('A data de inicio não pode ser vazia ou conter apenas espaços!')
             except ValueError as e:
                 print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
@@ -421,19 +453,17 @@ while True:
                 if not orcamento_str:
                     raise ValueError('O Orçamento não pode ser vazio!')
 
-                orcamento = float(orcamento_str.replace(
-                    ',', '.'))  # Tentativa de conversão
+                orcamento = float(orcamento_str.replace(',', '.'))  # Tentativa de conversão
 
                 # Verificação de valor negativo
                 if orcamento < 0:
                     raise ValueError('O Orçamento não pode ser negativo!')
 
-            except ValueError:
-                print(
-                    'ERRO: Por favor, insira um valor numérico válido para o orçamento!')
+            except ValueError as e:
+                print(f'{cores[1]}ERRO: {e}{cores[0]}')
             else:
-                print(f'Dado registrado com sucesso: R$ {orcamento:.2f}')
-                break  # Interrompe o laço
+                print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                break  # interrompe o laço
         
         # Dados do serviço
         dados_servico = {
@@ -447,29 +477,102 @@ while True:
         # lista de peças
         limpar()
         cabecalho('LISTA DE PEÇAS')
+        lista_pecas = []
+        while True:
+            while True:
+                try:
+                    Nome = str(input('NOME DA PEÇA: ')).strip()
+                    if not Nome:
+                        raise ValueError('A Nome da Peça não pode ser vazia ou conter apenas espaços!')
+                except ValueError as e:
+                    print(f'{cores[1]}ERRO: {e}{cores[0]}')
+                else:
+                    print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                    break
+            
+            while True:
+                try:
+                    Marca = str(input('MARCA DA PEÇA: ')).strip()
+                    if not Marca:
+                        raise ValueError('A Marca da Peça não pode ser vazia ou conter apenas espaços!')
+                except ValueError as e:
+                    print(f'{cores[1]}ERRO: {e}{cores[0]}')
+                else:
+                    print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                    break
+            
+            while True:
+                try:
+                    Valor_str = str(input(f'ORÇAMENTO DA PEÇA: R$')).strip()
+                    if not Valor_str:
+                        raise ValueError('O Orçamento da Peça não pode ser vazio!')
 
-        peca = str(input('PEÇA(S) A SER(EM) UTILIZADA(S): '))
-        valor = int(input('VALOR DA PEÇA: R$'))
+                    Valor = float(Valor_str.replace(',', '.'))  # Tentativa de conversão
+                    # Verificação de valor negativo
+                    if Valor < 0:
+                        raise ValueError('O Orçamento da Peça não pode ser negativo!')
+                except ValueError as e:
+                    print(f'{cores[1]}ERRO: {e}{cores[0]}')
+                else:
+                    print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                    break  
+            while True:
+                try:
+                    historico = str(input('HISTÓRICO DE USO (NOVA/USADA): ')).strip().upper()
+                    if not historico:
+                        raise ValueError('O Histórico não pode ser vazio!')
+                    if historico in 'NOVA':
+                        historico = 'NOVA'
+                    elif historico in "USADA":
+                        historico = 'USADA'
+                    else:
+                        raise ValueError('O Hístorico deve ser apenas NOVA/USADA')
+                except ValueError as e:
+                    print(f'{cores[1]}ERRO: {e}{cores[0]}')
+                else:
+                    print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                    break
+            
+            while True:
+                try:
+                    Descricao = str(input('DESCRIÇÃO: ')).strip()
+                    if not Descricao:
+                        raise ValueError('A Descrição não pode ser vazia ou conter apenas espaços!')
+                except ValueError as e:
+                    print(f'{cores[1]}ERRO: {e}{cores[0]}')
+                else:
+                    print(f'{cores[2]}Dado registrado com sucesso!!{cores[0]}')
+                    break
+            # Dados Peças
+            peca = {
+                'nome': Nome,
+                'marca': Marca,
+                'valor': Valor,
+                'historico': historico,
+                'descricao': Descricao
+            }
+            lista_pecas.append(peca)
 
-        # Dados da peça
-        dados_peca = {
-            'peca': peca,
-            'valor': valor
-        }
+            continuar = input('Deseja cadastrar outra peça? (s/n): ').lower()
+            if continuar != 's':
+                break
 
         # Chamada da SubClasse
         pausar()
         limpar()
-        tudo = pecas(dados_pessoa, dados_veiculo, dados_servico, dados_peca)
+        tudo = pecas(dados_pessoa, dados_veiculo, dados_servico, lista_pecas)
         cabecalho('REVISE OS DADOS!')
         tudo.print_pecas()
         tudo.exportar_para_csv()
         pausar()
-
+    
+    # Opção de Revisar cadastro
     elif opcao == '2':
         limpar()
         revisar_servico()
         pausar()
+    
+    # Opção de saida
     elif opcao == '3':
         limpar()
         print('Sistema Encerrado!')
