@@ -2,6 +2,8 @@
 # MecaSystem
 
 Este sistema foi desenvolvido para auxiliar no gerenciamento de uma oficina mecânica. Ele permite o cadastro de dados pessoais dos clientes, informações sobre veículos, serviços realizados e peças utilizadas, com geração de orçamentos detalhados e a capacidade de exportar os dados para arquivos CSV.
+O sistema MecaSystem é executado em terminal, tendo todas as estruturas de controle para esse fim.
+O projeto foi desenvolvido como parte das atividades acadêmicas no curso de Engenharia de Software, no Centro Universitário Campo Real, com o objetivo de aplicar os conhecimentos adquiridos no desenvolvimento de sistemas, integração de programação orientada a objetos, automação de processos e manipulação de dados. O projeto busca oferecer uma solução para a gestão de uma oficina mecânica, combinando o uso de Python, manipulação de arquivos CSV e a criação de uma estrutura orientada a objetos para o cadastro e controle de serviços, peças e veículos.
 
 ## Funcionalidades
 
@@ -97,3 +99,16 @@ cliente_pecas.print_pecas()
 
 # Exportar os dados para CSV
 cliente_pecas.exportar_para_csv()
+```
+## Desenvolvido Por
+- **Gabriel Beledeli Hul**  
+   - 📧 Email: [engs-gabrielhul@camporeal.edu.br](mailto:engs-gabrielhul@camporeal.edu.br)  
+   - GitHub: [github.com/GabrielBeledeli](https://github.com/GabrielBeledeli)
+
+- **Alisson Eraldo da Silva** 
+   - 📧 Email: [engs-alissonsilva@camporeal.edu.br](mailto:engs-alissonsilva@camporeal.edu.br)  
+   - GitHub: [github.com/AlissonnSilva](https://github.com/AlissonnSilva)
+
+- **Caio Eduardo Gemim Guarienti**  
+   - 📧 Email: [engs-caioguarienti@camporeal.edu.br](mailto:engs-caioguarienti@camporeal.edu.br)  
+   - GitHub: [github.com/CaioEduardoGemin](https://github.com/CaioEduardoGemin)
