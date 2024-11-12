@@ -104,12 +104,12 @@ cliente_pecas.exportar_para_csv()
 
 Durante o desenvolvimento do projeto, foram realizadas várias modificações e aprimoramentos no código-fonte. Cada versão foi salva com um número incremental para registrar as alterações feitas ao longo do processo. Os arquivos de código-fonte estão organizados da seguinte maneira:
 
-### mecanica1.0.1.py: Primeira versão funcional do sistema.
-### mecanica1.0.2.py até mecanica1.2.5.py: Atualizações contínuas do sistema, com melhorias em funcionalidades e correção de bugs.
+- mecanica1.0.1.py: Primeira versão funcional do sistema.
+- mecanica1.0.2.py até mecanica1.2.5.py: Atualizações contínuas do sistema, com melhorias em funcionalidades e correção de bugs.
+  
+Além disso, para facilitar os testes e validações, um arquivo de exemplo foi gerado, contendo os dados simulados para a verificação do funcionamento do sistema:
 
-- Além disso, para facilitar os testes e validações, um arquivo de exemplo foi gerado, contendo os dados simulados para a verificação do funcionamento do sistema:
-
-### ALISSON_ERALDO_servico.csv: Arquivo CSV gerado a partir da exportação dos dados de um cliente fictício, que pode ser utilizado para revisão do serviço através da função de leitura de arquivo CSV implementada no projeto.
+- ALISSON_ERALDO_servico.csv: Arquivo CSV gerado a partir da exportação dos dados de um cliente fictício, que pode ser utilizado para revisão do serviço através da função de leitura de arquivo CSV implementada no projeto.
 
 ## Desenvolvido Por
 - **Gabriel Beledeli Hul**  
